@@ -1,5 +1,5 @@
 /*
-A simple chat service for demonstration & diagnostics purpose
+Business logic implementation for the chat service.
 
 */
 package chat
@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+// create a service hosting context to accommodate a new connection from consumer
+// over HBI wire.
 func NewServiceContext() hbi.HoContext {
 	return &ServiceContext{
 		HoContext: hbi.NewHoContext(),
@@ -19,7 +21,7 @@ func NewServiceContext() hbi.HoContext {
 	}
 }
 
-// one hosting context will be created for each and every consumer connections
+// one hosting context will be created for each and every consumer connections.
 // exported fields/methods are exposed service API,
 // while unexported fields/methods are implementation details.
 type ServiceContext struct {
@@ -159,7 +161,7 @@ func (room *Room) recentMsgLog() *MsgsInRoom {
 	return room.cachedMsgLog
 }
 
-// service globals
+// global states for a service instance
 var (
 	mu    sync.Mutex
 	lobby = NewRoom("Lobby")
@@ -167,7 +169,7 @@ var (
 )
 
 func init() {
-	rooms[lobby.name] = lobby
+	rooms["Lobby"] = lobby
 }
 
 func prepareRoom(roomId string) (room *Room) {

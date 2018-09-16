@@ -1,5 +1,6 @@
 /*
-Common data structures for chat
+Common data structures for chat service.
+
 */
 package chat
 

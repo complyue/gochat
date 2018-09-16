@@ -1,5 +1,5 @@
 /*
-A simple chat client for demonstration & diagnostics purpose
+Consumer API for chat service.
 
 */
 package chat
@@ -13,13 +13,31 @@ import (
 	"time"
 )
 
-//
+// interface for chat service consumers.
 type ConsumerAPI struct {
 	ctx *consumerContext
 
 	Nick string
 }
 
+// get the hosting context to be used to establish a connection over HBI wire
+func (api *ConsumerAPI) GetHoContext() hbi.HoContext {
+	if api.ctx == nil {
+		api.ctx = &consumerContext{
+			HoContext: hbi.NewHoContext(),
+
+			inRoom: "?.?",
+
+			roomWelcome: make(chan string),
+			msgPost:     make(chan string),
+		}
+	}
+	return api.ctx
+}
+
+// an `io.Writer` to be passed in here, is an over simplified design.
+// a GUI oriented API set can be defined, with much more, sophisticated methods,
+// to facilitate a human facing display interface.
 func (api *ConsumerAPI) SetOutput(output io.Writer) {
 	api.ctx.output = func() io.Writer {
 		return output
@@ -63,25 +81,11 @@ Say(%#v)
 	}
 }
 
-func (api *ConsumerAPI) GetHoContext() hbi.HoContext {
-	if api.ctx == nil {
-		api.ctx = &consumerContext{
-			HoContext: hbi.NewHoContext(),
-
-			inRoom: "?.?",
-
-			roomWelcome: make(chan string),
-			msgPost:     make(chan string),
-		}
-	}
-	return api.ctx
-}
-
-// one hosting context per consumer connection to a service
+// one hosting context is created per consumer connection to a service.
 // exported fields/methods are implementation details accommodating code from
 // service, to materialize effects pushed by service.
-// while unexported fields/methods are implementation details necessary at
-// consumer endpoint.
+// unexported fields/methods are implementation details necessary at
+// consumer endpoint for house keeping etc.
 type consumerContext struct {
 	hbi.HoContext
 
@@ -93,13 +97,11 @@ type consumerContext struct {
 	msgPost     chan string
 }
 
+// give types to be exposed, with nil pointer values to each
 func (ctx *consumerContext) TypesToExpose() []interface{} {
-	var (
-		rms *MsgsInRoom
-		m   *Msg
-	)
 	return []interface{}{
-		rms, m,
+		(*MsgsInRoom)(nil),
+		(*Msg)(nil),
 	}
 }
 
