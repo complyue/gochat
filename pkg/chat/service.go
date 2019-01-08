@@ -6,9 +6,10 @@ package chat
 
 import (
 	"fmt"
-	"github.com/complyue/hbigo"
 	"sync"
 	"time"
+
+	"github.com/complyue/hbigo"
 )
 
 // create a service hosting context to accommodate a new connection from consumer
@@ -56,7 +57,7 @@ EnteredRoom(%#v,%#v)
 	if len(msgLog.Msgs) > 0 {
 		p2p.NotifBSON(`
 RoomMsgs()
-`, msgLog, "&MsgsInRoom{}")
+`, msgLog, "new(MsgsInRoom)")
 	} else {
 		p2p.Notif(`
 Show("Too silent, you be the first speaker? ;-)")
@@ -136,7 +137,7 @@ func (room *Room) Post(from, content string) {
 				}()
 				p2p.NotifBSON(`
 RoomMsgs()
-`, notifOut, "&MsgsInRoom{}")
+`, notifOut, "new(MsgsInRoom)")
 			}()
 		} else {
 			// disconnected or so, forget it
